@@ -1,72 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Website Launch</title>
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js&quot;&gt;&lt;/script&gt;<br/><br/> <style>
+<style>
 body {
 margin: 0;
-min-height: 100vh;
-display: flex;
-align-items: center;
-justify-content: center;
-background: #08193a;
-color: #fff;
-font-family: Arial, sans-serif;
+padding: 0;
+background: black;
+color: white;
+font-family: Arial, Helvetica, sans-serif;
 text-align: center;
 }
 
-button {
-background: #ffcc00;
-padding: 15px 30px;
-border: 0;
-border-radius: 10px;
+#launchBtn {
+margin-top: 150px;
+padding: 16px 40px;
+font-size: 22px;
 cursor: pointer;
-font-size: 20px;
+border: none;
+border-radius: 10px;
+background: #00c3ff;
+color: black;
 font-weight: bold;
 }
 
-#message, #websiteLink {
+#celebration {
 display: none;
-margin-top: 20px;
+font-size: 40px;
+margin-top: 80px;
+animation: pop 1s ease-in-out;
 }
 
-#websiteLink {
-font-size: 22px;
-color: #00c2ff;
+@keyframes pop {
+0% { transform: scale(0.5); opacity: 0; }
+100% { transform: scale(1); opacity: 1; }
+}
+
+#sitename {
+display: none;
+margin-top: 40px;
+font-size: 30px;
+color: #00eaff;
 cursor: pointer;
 text-decoration: underline;
 }
 </style>
-</head>
-<body>
-
-<div>
-<h1>Launch Your Website</h1>
-<button onclick="launchSite()">🚀 Launch Website</button>
-
-<div id="message">🎉 Congratulations! 🎉</div>
-<div id="websiteLink" onclick="goToSite()">
-👉 Click Here to Enter Website
-</div>
-</div>
 
 <script>
 function launchSite() {
-confetti({ particleCount: 200, spread: 90 });
-document.getElementById("message").style.display = "block";
+document.getElementById("launchBtn").style.display = "none";
+document.getElementById("celebration").style.display = "block";
 
 setTimeout(() => {
-document.getElementById("websiteLink").style.display = "block";
-}, 1200);
+document.getElementById("sitename").style.display = "block";
+}, 1500);
 }
 
-function goToSite() {
+function openWebsite() {
 window.location.href = "https://rakeshmalligevalu.in";
 }
 </script>
 
+</head>
+
+<body>
+<button id="launchBtn" onclick="launchSite()">Launch Website</button>
+
+<div id="celebration">🎉 CONGRATULATIONS! 🎉</div>
+
+<div id="sitename" onclick="openWebsite()">➡ Visit rakeshmalligevalu.in</div>
 </body>
 </html>
