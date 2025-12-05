@@ -1,228 +1,546 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Website Launch - Rakesh Mallige Valu</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Launch — rakeshmalligevalu.in</title>
+
+<!-- three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r148/three.min.js"></script>
 
 <style>
-/* ---------- GLOBAL ---------- */
-body {
-    margin: 0;
-    padding: 0;
-    background: #000;
-    font-family: "Poppins", sans-serif;
-    overflow: hidden;
-    text-align: center;
-    color: white;
-}
-
-/* ---------- DYNAMIC BACKGROUND LAYERS ---------- */
-
-/* GRADIENT WAVE BACKGROUND */
-.gradient-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        135deg,
-        #001926,
-        #00334d,
-        #000d1a,
-        #002233,
-        #00101a
-    );
-    background-size: 400% 400%;
-    animation: gradientFlow 12s infinite ease-in-out;
-    z-index: -3;
-}
-
-/* Smooth gradient animation */
-@keyframes gradientFlow {
-    0% { background-position: 0% 0%; transform: scale(1.1); }
-    50% { background-position: 100% 50%; transform: scale(1.2); }
-    100% { background-position: 0% 0%; transform: scale(1.1); }
-}
-
-/* FLOATING PARTICLE DOTS */
-.particles {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: -2;
-}
-
-.particles span {
-    position: absolute;
-    display: block;
-    width: 6px;
-    height: 6px;
-    background: #00eaff;
-    border-radius: 50%;
-    opacity: 0.4;
-    animation: floatUp 10s infinite linear;
-}
-
-@keyframes floatUp {
-    0% { transform: translateY(100vh) scale(0.5); opacity: 0.2; }
-    50% { opacity: 0.9; }
-    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-}
-
-/* ADD 25 RANDOM PARTICLES */
+  html,body{height:100%;margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:#000;overflow:hidden}
+  #container{position:fixed;inset:0;z-index:0}
+  /* UI overlay */
+  .ui {
+    position:relative;
+    z-index:20;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    height:100%;
+    color:#fff;
+    pointer-events:none;
+  }
+  .card {
+    margin-top:10vh;
+    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    padding:28px 36px;
+    border-radius:14px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.6);
+    pointer-events:auto;
+    text-align:center;
+    min-width:320px;
+    backdrop-filter: blur(6px) saturate(120%);
+  }
+  h1{margin:0 0 6px;font-size:22px;letter-spacing:0.6px}
+  p{margin:0 0 18px;color:rgba(255,255,255,0.85)}
+  #launchBtn {
+    background:linear-gradient(90deg,#ffce00,#00eaff);
+    border:0;padding:14px 26px;border-radius:12px;font-weight:700;
+    cursor:pointer;font-size:16px;color:#06202a;box-shadow:0 8px 30px rgba(0,0,0,0.45);
+  }
+  #launchBtn:active{transform:translateY(2px)}
+  #message{margin-top:18px;font-size:20px;display:none}
+  #siteLink{margin-top:12px;color:#00eaff;text-decoration:underline;cursor:pointer;display:none}
+  /* fog canvas overlay for soft smoke */
+  #fogCanvas{position:fixed;inset:0;z-index:5;pointer-events:none;mix-blend-mode:screen;opacity:0.9}
+  /* small instructions bottom */
+  .hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.55);font-size:13px;z-index:30}
 </style>
 </head>
-
 <body>
 
-<div class="gradient-bg"></div>
+<div id="container"></div>
 
-<div class="particles">
-    <!-- Auto-generated 25 floating particles -->
-    <script>
-        for (let i = 0; i < 25; i++) {
-            const dot = document.createElement("span");
-            dot.style.left = Math.random() * 100 + "vw";
-            dot.style.animationDuration = 8 + Math.random() * 10 + "s";
-            dot.style.animationDelay = Math.random() * 5 + "s";
-            document.body.querySelector(".particles").appendChild(dot);
-        }
-    </script>
+<!-- fog canvas -->
+<canvas id="fogCanvas"></canvas>
+
+<!-- UI -->
+<div class="ui">
+  <div class="card" id="uiCard">
+    <h1>Rakesh Mallige Valu — Launch</h1>
+    <p>Click launch to celebrate & enter the site</p>
+    <button id="launchBtn">🚀 Launch Website</button>
+    <div id="message">🎉 Congratulations — Launch Successful! 🎉</div>
+    <div id="siteLink" onclick="goToSite()">➡ Visit rakeshmalligevalu.in</div>
+  </div>
 </div>
 
-<button id="launchBtn" onclick="launchSite()">🚀 Launch Website</button>
-
-<div id="celebration">🎉 Congratulations! 🎉</div>
-
-<div id="sitename" onclick="openWebsite()">➡ Visit rakeshmalligevalu.in</div>
-
-<canvas id="fireworksCanvas"></canvas>
-
-<style>
-/* ---------- BUTTON + TEXT ---------- */
-#launchBtn {
-    margin-top: 200px;
-    padding: 18px 50px;
-    font-size: 26px;
-    border-radius: 12px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #00eaff, #0077ff);
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 0 25px #00eaffaa;
-    transition: 0.3s;
-}
-#launchBtn:hover {
-    transform: scale(1.12);
-}
-
-#celebration {
-    display: none;
-    font-size: 55px;
-    margin-top: 80px;
-    animation: pop 1.2s ease-in-out;
-    font-weight: 700;
-}
-@keyframes pop {
-    0% { transform: scale(0.3); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-#sitename {
-    display: none;
-    margin-top: 40px;
-    font-size: 32px;
-    color: #00eaff;
-    cursor: pointer;
-    text-decoration: underline;
-    animation: fadeIn 2s ease-in-out;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* ---------- FIREWORKS CANVAS ---------- */
-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
-}
-</style>
+<div class="hint">If you experience lag, open on a desktop for the full effect.</div>
 
 <script>
-function launchSite() {
-    document.getElementById("launchBtn").style.display = "none";
-    document.getElementById("celebration").style.display = "block";
-    setTimeout(() => {
-        document.getElementById("sitename").style.display = "block";
-    }, 1500);
-    startFireworks();
+/* ===========================
+   Config
+   =========================== */
+const TARGET_URL = "https://rakeshmalligevalu.in";
+const AUDIO_URL = ""; // OPTIONAL: put an mp3 URL here (CORS-enabled) to sync fireworks to audio. Leave blank to use oscillator-beat.
+
+/* ===========================
+   Basic three.js scene
+   =========================== */
+let scene, camera, renderer, clock;
+let particlesSystem, rings = [], auroraMesh, ribbonMesh;
+const particleCount = 1200;
+
+function initThree() {
+  const container = document.getElementById('container');
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x000000, 0.0008); // subtle fog for depth
+
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 4000);
+  camera.position.set(0, 18, 80);
+
+  renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  container.appendChild(renderer.domElement);
+
+  clock = new THREE.Clock();
+
+  // Stars / galaxy particle field
+  createStarField();
+
+  // Aurora band (shader plane)
+  createAurora();
+
+  // Moving glow rings
+  createRings();
+
+  // Rainbow energy ribbon
+  createRibbon();
+
+  // subtle ambient lights
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x000022, 0.6);
+  scene.add(hemi);
+
+  window.addEventListener('resize', onWindowResize);
 }
 
-function openWebsite() {
-    window.location.href = "https://rakeshmalligevalu.in";
+function onWindowResize(){
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  fogCanvas.width = window.innerWidth;
+  fogCanvas.height = window.innerHeight;
 }
 
-/* ---------- FIREWORKS SCRIPT ---------- */
-const canvas = document.getElementById("fireworksCanvas");
-const ctx = canvas.getContext("2d");
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let particles = [];
-
-function random(min, max) {
-    return Math.random() * (max - min) + min;
+/* ---------------------------
+   Star field
+   --------------------------- */
+function createStarField(){
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount*3);
+  const colors = new Float32Array(particleCount*3);
+  for(let i=0;i<particleCount;i++){
+    const r = 300 + Math.random()*1200;
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos(2*Math.random()-1);
+    const x = r*Math.sin(phi)*Math.cos(theta);
+    const y = r*Math.sin(phi)*Math.sin(theta);
+    const z = r*Math.cos(phi);
+    positions[i*3]=x; positions[i*3+1]=y*0.4; positions[i*3+2]=z;
+    const c = new THREE.Color();
+    c.setHSL( Math.random()*0.2+0.55, 0.7, Math.random()*0.5+0.5 );
+    colors[i*3]=c.r; colors[i*3+1]=c.g; colors[i*3+2]=c.b;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  const mat = new THREE.PointsMaterial({size:1.6, vertexColors:true, transparent:true, opacity:0.9});
+  particlesSystem = new THREE.Points(geo, mat);
+  scene.add(particlesSystem);
 }
 
-function createFirework() {
-    const x = random(100, canvas.width - 100);
-    const y = random(50, canvas.height / 2);
-
-    for (let i = 0; i < 80; i++) {
-        particles.push({
-            x: x,
-            y: y,
-            radius: random(2, 4),
-            color: `hsl(${Math.random() * 360}, 100%, 60%)`,
-            speedX: random(-5, 5),
-            speedY: random(-5, 5),
-            alpha: 1
-        });
+/* ---------------------------
+   Aurora shader plane
+   --------------------------- */
+function createAurora(){
+  const w=2000,h=400;
+  const geo = new THREE.PlaneGeometry(w,h, 64, 8);
+  // simple vertex displacement + color gradient in fragment
+  const vertex = `
+    varying vec2 vUv;
+    uniform float time;
+    void main(){
+      vUv = uv;
+      vec3 pos = position;
+      float wave = sin((uv.x*6.2831 + time*0.8) ) * 35.0 * (1.0-uv.y);
+      pos.z += wave * (1.0 - uv.y);
+      vec4 mvPosition = modelViewMatrix * vec4(pos,1.0);
+      gl_Position = projectionMatrix * mvPosition;
     }
+  `;
+  const fragment = `
+    varying vec2 vUv;
+    uniform float time;
+    void main(){
+      float y = vUv.y;
+      vec3 col = vec3(0.02, 0.05, 0.08);
+      // layered color bands with smooth noise-like movement
+      float band = smoothstep(0.0, 1.0, sin(vUv.x*12.0 + time*0.6)*0.5 + 0.5);
+      vec3 aur = vec3(0.0, 0.7, 0.9) * (0.4 + 0.6*band*(1.0 - y));
+      vec3 aur2 = vec3(0.9,0.2,0.5) * (0.25 * (sin(vUv.x*6.0 + time*1.2)*0.5+0.5));
+      float alpha = smoothstep(0.05, 0.0, y-0.2) * 0.9;
+      gl_FragColor = vec4(col + aur + aur2, alpha);
+    }
+  `;
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {time:{value:0}},
+    vertexShader:vertex,
+    fragmentShader:fragment,
+    transparent:true,
+    depthWrite:false,
+    blending:THREE.AdditiveBlending,
+    side:THREE.DoubleSide
+  });
+  auroraMesh = new THREE.Mesh(geo, mat);
+  auroraMesh.rotation.x = -0.9;
+  auroraMesh.position.y = 8;
+  auroraMesh.position.z = -60;
+  scene.add(auroraMesh);
 }
 
-function animateFireworks() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    particles.forEach((p, index) => {
-        p.x += p.speedX;
-        p.y += p.speedY;
-        p.alpha -= 0.02;
-
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (p.alpha <= 0) particles.splice(index, 1);
+/* ---------------------------
+   Glow rings
+   --------------------------- */
+function createRings(){
+  const torusGeo = new THREE.TorusGeometry(18, 0.8, 30, 120);
+  for(let i=0;i<3;i++){
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color().setHSL(0.55 + i*0.08, 0.8, 0.5),
+      emissive: new THREE.Color().setHSL(0.55 + i*0.08, 1.0, 0.6),
+      emissiveIntensity:1.4,
+      transparent:true,
+      opacity:0.95,
+      side:THREE.DoubleSide
     });
-
-    requestAnimationFrame(animateFireworks);
+    const mesh = new THREE.Mesh(torusGeo, mat);
+    mesh.scale.setScalar(1 + i*0.7);
+    mesh.rotation.x = Math.PI*0.45 + i*0.05;
+    mesh.position.set(0, 6 - i*4, -20 - i*8);
+    scene.add(mesh);
+    rings.push(mesh);
+  }
 }
 
-function startFireworks() {
-    setInterval(createFirework, 700);
-    animateFireworks();
+/* ---------------------------
+   Rainbow ribbon (energy wave)
+   --------------------------- */
+function createRibbon(){
+  const segments = 200;
+  const positions = new Float32Array(segments*3);
+  for(let i=0;i<segments;i++){
+    positions[i*3]= (i/segments - 0.5) * 120;
+    positions[i*3+1]= Math.sin(i*0.12)*3;
+    positions[i*3+2]= -10 + Math.cos(i*0.08)*8;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const mat = new THREE.LineBasicMaterial({color:0xffffff, linewidth:2});
+  ribbonMesh = new THREE.Line(geo, mat);
+  ribbonMesh.material = new THREE.LineBasicMaterial({vertexColors:true});
+  // create "tube" look via small cones or use mesh ribbon: simpler approach - use Points with colorful glow
+  const colors = new Float32Array(segments*3);
+  for(let i=0;i<segments;i++){
+    const c = new THREE.Color().setHSL( i/segments, 0.9, 0.6 );
+    colors[i*3]=c.r; colors[i*3+1]=c.g; colors[i*3+2]=c.b;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  const pmat = new THREE.PointsMaterial({size:3.6, vertexColors:true, transparent:true, opacity:0.95});
+  const points = new THREE.Points(geo, pmat);
+  points.position.y = -6;
+  scene.add(points);
+  ribbonMesh = points;
 }
+
+/* ===========================
+   FIREWORKS (visual particles, spawn on "beats")
+   =========================== */
+let fireworks = [];
+function spawnFirework(x,y,colorH){
+  // create many particles for firework
+  const count = 60 + Math.floor(Math.random()*60);
+  for(let i=0;i<count;i++){
+    fireworks.push({
+      x: x + (Math.random()-0.5)*6,
+      y: y + (Math.random()-0.5)*6,
+      z: -20 + Math.random()*20,
+      vx: (Math.random()-0.5)*6,
+      vy: (Math.random()-0.5)*6 + 2,
+      vz: (Math.random()-0.5)*6,
+      life: 1.6 + Math.random()*0.6,
+      hue: colorH + (Math.random()*80-40)
+    });
+  }
+}
+
+/* ===========================
+   SIMPLE PARTICLE RENDER (post-process via canvas)
+   We will draw fireworks as 2D points on a UI canvas overlay for speed & artistic style
+   =========================== */
+const fxCanvas = document.createElement("canvas");
+const fxCtx = fxCanvas.getContext("2d");
+fxCanvas.style.position = "fixed";
+fxCanvas.style.left = 0;
+fxCanvas.style.top = 0;
+fxCanvas.style.width = "100%";
+fxCanvas.style.height = "100%";
+fxCanvas.style.pointerEvents = "none";
+fxCanvas.style.zIndex = 10;
+document.body.appendChild(fxCanvas);
+function resizeFxCanvas(){
+  fxCanvas.width = window.innerWidth;
+  fxCanvas.height = window.innerHeight;
+}
+resizeFxCanvas(); window.addEventListener('resize', resizeFxCanvas);
+
+function updateFireworks(dt){
+  fxCtx.clearRect(0,0,fxCanvas.width, fxCanvas.height);
+  for(let i = fireworks.length-1; i>=0; i--){
+    const p = fireworks[i];
+    p.x += p.vx*dt*60;
+    p.y += p.vy*dt*60;
+    p.z += p.vz*dt*60;
+    p.vy -= 9.8*dt; // gravity
+    p.life -= dt;
+    const alpha = Math.max(0, p.life/1.6);
+    const screenX = (p.x / (p.z + 200)) * (fxCanvas.width*0.7) + fxCanvas.width/2;
+    const screenY = ( -p.y / (p.z + 200) ) * (fxCanvas.height*0.7) + fxCanvas.height/2;
+    fxCtx.beginPath();
+    const r = 1.5 + (p.life/1.6)*2.5;
+    fxCtx.fillStyle = `hsla(${p.hue},100%,60%,${alpha})`;
+    fxCtx.arc(screenX, screenY, r, 0, Math.PI*2);
+    fxCtx.fill();
+    // add trails
+    fxCtx.fillStyle = `rgba(255,255,255,${alpha*0.06})`;
+    fxCtx.fillRect(screenX-0.5, screenY-4, 1, 6);
+    if(p.life <= 0) fireworks.splice(i,1);
+  }
+}
+
+/* ===========================
+   Fog / Smoke overlay canvas
+   =========================== */
+const fogCanvas = document.getElementById('fogCanvas');
+const fogCtx = fogCanvas.getContext('2d');
+fogCanvas.width = window.innerWidth;
+fogCanvas.height = window.innerHeight;
+let fogTime = 0;
+function drawFog(dt){
+  fogTime += dt*0.3;
+  fogCtx.clearRect(0,0,fogCanvas.width,fogCanvas.height);
+  const grd = fogCtx.createLinearGradient(0,0,fogCanvas.width,fogCanvas.height);
+  grd.addColorStop(0,'rgba(10,20,30,0.2)');
+  grd.addColorStop(0.4,'rgba(5,10,18,0.12)');
+  grd.addColorStop(1,'rgba(0,0,0,0.3)');
+  fogCtx.fillStyle = grd;
+  fogCtx.fillRect(0,0,fogCanvas.width,fogCanvas.height);
+
+  // animated soft shapes
+  for(let i=0;i<4;i++){
+    fogCtx.beginPath();
+    const x = (Math.sin(fogTime*(0.3+i*0.12)+i)*0.5+0.5) * fogCanvas.width;
+    const y = (Math.cos(fogTime*(0.2+i*0.1)-i)*0.5+0.5) * fogCanvas.height * 0.6;
+    const rad = 300 + Math.sin(fogTime*0.4 + i) * 80;
+    const g = fogCtx.createRadialGradient(x,y,10,x,y,rad);
+    g.addColorStop(0, `rgba(0,120,170,${0.06 + i*0.03})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    fogCtx.fillStyle = g;
+    fogCtx.fillRect(x-rad,y-rad,rad*2,rad*2);
+  }
+}
+
+/* ===========================
+   AUDIO (beat detection)
+   - if AUDIO_URL provided, use audio element + AnalyserNode
+   - else use oscillator pulse to simulate beats
+   =========================== */
+let audioCtx, analyser, audioSource, audioElement;
+let beatCooldown = 0;
+function setupAudio(){
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 1024;
+  if(AUDIO_URL){
+    audioElement = new Audio(AUDIO_URL);
+    audioElement.crossOrigin = "anonymous";
+    audioElement.loop = true;
+    audioSource = audioCtx.createMediaElementSource(audioElement);
+    audioSource.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    audioElement.play().catch(()=>{ /* user gesture required earlier - will be handled on launch */});
+  } else {
+    // oscillator + periodic beats
+    // we'll create a silent node and schedule beats on user click
+    const gain = audioCtx.createGain();
+    gain.gain.value = 0.0;
+    gain.connect(analyser);
+    analyser.connect(audioCtx.destination);
+  }
+}
+
+function analyzeAudioAndSpawn(dt){
+  if(!analyser) return;
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(data);
+  // measure low-mid energy
+  let sum = 0;
+  for(let i=0;i<40;i++) sum += data[i];
+  const avg = sum / 40;
+  // threshold with cooldown
+  if(avg > 120 && beatCooldown <= 0){
+    beatCooldown = 0.6;
+    // spawn a burst of fireworks at random screen positions
+    const hx = Math.random()*360;
+    const countSpawns = 2 + Math.floor(Math.random()*3);
+    for(let i=0;i<countSpawns;i++){
+      spawnFirework( (Math.random()*60 - 30), (20 + Math.random()*30), hx );
+    }
+  }
+  beatCooldown = Math.max(0, beatCooldown - dt);
+}
+
+/* ===========================
+   Animation loop
+   =========================== */
+let last = performance.now();
+function animate(){
+  const t = clock.getElapsedTime();
+  const now = performance.now();
+  const dt = (now - last)/1000;
+  last = now;
+
+  // aurora movement
+  if(auroraMesh) auroraMesh.material.uniforms.time.value = t;
+
+  // rotate rings slowly to create motion
+  rings.forEach((r,i) => {
+    r.rotation.z += 0.003 + i*0.001;
+    r.rotation.y += 0.001 + i*0.0006;
+  });
+
+  // move star field very slowly
+  if(particlesSystem){
+    particlesSystem.rotation.y += 0.00008;
+    particlesSystem.rotation.x = Math.sin(t*0.02)*0.02;
+  }
+
+  // animate ribbon points
+  if(ribbonMesh && ribbonMesh.geometry){
+    const pos = ribbonMesh.geometry.attributes.position;
+    for(let i=0;i<pos.count;i++){
+      const x = pos.getX(i);
+      pos.setY(i, Math.sin(t*1.5 + i*0.07)*6 + Math.cos(i*0.04 + t)*1.6);
+    }
+    pos.needsUpdate = true;
+  }
+
+  // update fireworks particles and draw them
+  updateFireworks(dt);
+
+  // draw fog overlay
+  drawFog(dt);
+
+  // analyze audio and spawn fireworks (if audio running)
+  analyzeAudioAndSpawn(dt);
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+
+/* ===========================
+   Launch / UI interactions
+   =========================== */
+const launchBtn = document.getElementById('launchBtn');
+const message = document.getElementById('message');
+const siteLink = document.getElementById('siteLink');
+
+function goToSite(){ window.location.href = TARGET_URL; }
+
+async function doLaunch(){
+  // user gesture satisfied here: resume audio context
+  if(!audioCtx) {
+    try{ setupAudio(); audioCtx.resume(); }catch(e){ console.warn(e); }
+  } else if(audioCtx.state === 'suspended') {
+    await audioCtx.resume();
+  }
+
+  // play audio element if provided
+  if(audioElement) {
+    try{ await audioElement.play(); } catch(e){ /* ignore */ }
+  } else {
+    // simulate initial drum-like beats using oscillator to sync fireworks
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine'; o.frequency.value = 80;
+    g.gain.value = 0.0001; // near-silent but still creates analyzer energy
+    o.connect(g); g.connect(analyser);
+    o.start();
+    setTimeout(()=>{o.stop();}, 800);
+    // spawn some fireworks immediately
+    for(let i=0;i<4;i++) spawnFirework((Math.random()*80 - 40), (20 + Math.random()*40), Math.random()*360);
+  }
+
+  // show UI
+  launchBtn.style.display = 'none';
+  message.style.display = 'block';
+  setTimeout(()=> siteLink.style.display = 'block', 1500);
+
+  // start color-synced fireworks schedule for a few seconds
+  let bursts=0;
+  const burstInterval = setInterval(()=>{
+    spawnFirework((Math.random()*90 - 45), (20 + Math.random()*30), Math.random()*360);
+    bursts++;
+    if(bursts>18) clearInterval(burstInterval);
+  }, 420);
+}
+
+/* ===========================
+   Initialize everything
+   =========================== */
+initThree();
+clock.start = function(){};
+clock.start = null; // not used; we use performance-based clock
+clock = new THREE.Clock();
+
+document.getElementById('launchBtn').addEventListener('click', async ()=>{
+  // create audio context on first click
+  if(!audioCtx) {
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 1024;
+    analyser.connect(audioCtx.destination);
+    // if user provided an mp3, connect it
+    if(AUDIO_URL){
+      audioElement = new Audio(AUDIO_URL);
+      audioElement.crossOrigin="anonymous"; audioElement.loop=true;
+      audioSource = audioCtx.createMediaElementSource(audioElement);
+      audioSource.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      try{ await audioElement.play(); }catch(e){}
+    } else {
+      // connect a silent gain to analyser so analyzer has source
+      const g = audioCtx.createGain(); g.gain.value = 0.0; g.connect(analyser); analyser.connect(audioCtx.destination);
+    }
+  }
+  // resume audio context if needed
+  if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+  doLaunch();
+});
+
+function startFireLoop(){
+  // small loop to periodically create bloom fireworks independent of audio
+  setInterval(()=>{
+    spawnFirework((Math.random()*80 - 40), (10 + Math.random()*30), Math.random()*360);
+  }, 2500);
+}
+startFireLoop();
+
+clock = new THREE.Clock();
+requestAnimationFrame(animate);
+
 </script>
-
 </body>
 </html>
