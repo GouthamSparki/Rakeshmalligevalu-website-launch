@@ -1,73 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Website Launch</title>
-<style>
-body {
-margin: 0;
-padding: 0;
-background: black;
-color: white;
-font-family: Arial, Helvetica, sans-serif;
-text-align: center;
-}
+    <title>Website Launch</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+        }
 
-#launchBtn {
-margin-top: 150px;
-padding: 16px 40px;
-font-size: 22px;
-cursor: pointer;
-border: none;
-border-radius: 10px;
-background: #00c3ff;
-color: black;
-font-weight: bold;
-}
+        #launchBtn {
+            margin-top: 150px;
+            padding: 16px 40px;
+            font-size: 22px;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background: #00c3ff;
+            color: black;
+            font-weight: bold;
+        }
 
-#celebration {
-display: none;
-font-size: 40px;
-margin-top: 80px;
-animation: pop 1s ease-in-out;
-}
+        #celebration {
+            display: none;
+            font-size: 40px;
+            margin-top: 80px;
+            animation: pop 1s ease-in-out;
+        }
 
-@keyframes pop {
-0% { transform: scale(0.5); opacity: 0; }
-100% { transform: scale(1); opacity: 1; }
-}
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
-#sitename {
-display: none;
-margin-top: 40px;
-font-size: 30px;
-color: #00eaff;
-cursor: pointer;
-text-decoration: underline;
-}
-</style>
+        #sitename {
+            display: none;
+            margin-top: 40px;
+            font-size: 30px;
+            color: #00eaff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
 
-<script>
-function launchSite() {
-document.getElementById("launchBtn").style.display = "none";
-document.getElementById("celebration").style.display = "block";
+    <script>
+        function launchSite() {
+            document.getElementById("launchBtn").style.display = "none";
+            document.getElementById("celebration").style.display = "block";
 
-setTimeout(() => {
-document.getElementById("sitename").style.display = "block";
-}, 1500);
-}
+            setTimeout(() => {
+                document.getElementById("sitename").style.display = "block";
+            }, 1500);
+        }
 
-function openWebsite() {
-window.location.href = "https://rakeshmalligevalu.in";
-}
-</script>
+        function openWebsite() {
+            window.location.href = "https://rakeshmalligevalu.in";
+        }
+    </script>
 
 </head>
 
 <body>
-<button id="launchBtn" onclick="launchSite()">Launch Website</button>
+    <button id="launchBtn" onclick="launchSite()">Launch Website</button>
 
-<div id="celebration">🎉 CONGRATULATIONS! 🎉</div>
+    <div id="celebration">🎉 CONGRATULATIONS! 🎉</div>
 
-<div id="sitename" onclick="openWebsite()">➡ Visit rakeshmalligevalu.in</div>
+    <div id="sitename" onclick="openWebsite()">➡ Visit rakeshmalligevalu.in</div>
 </body>
 </html>
