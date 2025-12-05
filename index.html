@@ -1,73 +1,188 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Website Launch</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: black;
-            color: white;
-            font-family: Arial, Helvetica, sans-serif;
-            text-align: center;
-        }
+<meta charset="UTF-8">
+<title>Website Launch - Rakesh Mallige Valu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        #launchBtn {
-            margin-top: 150px;
-            padding: 16px 40px;
-            font-size: 22px;
-            cursor: pointer;
-            border: none;
-            border-radius: 10px;
-            background: #00c3ff;
-            color: black;
-            font-weight: bold;
-        }
+<style>
+    /* ---- GLOBAL STYLING ---- */
+    body {
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(circle at top, #00111a, #000000);
+        font-family: "Poppins", sans-serif;
+        overflow: hidden;
+        color: white;
+        text-align: center;
+    }
 
-        #celebration {
-            display: none;
-            font-size: 40px;
-            margin-top: 80px;
-            animation: pop 1s ease-in-out;
-        }
+    /* ---- BACKGROUND ANIMATION ---- */
+    .bg-animation {
+        position: fixed;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(135deg, #001f33, #000000, #003344, #000000);
+        background-size: 400% 400%;
+        animation: flow 12s infinite;
+        z-index: -2;
+        top: -50%;
+        left: -50%;
+    }
 
-        @keyframes pop {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+    @keyframes flow {
+        0% { transform: rotate(0deg); opacity: 0.9; }
+        50% { transform: rotate(180deg); opacity: 1; }
+        100% { transform: rotate(360deg); opacity: 0.9; }
+    }
 
-        #sitename {
-            display: none;
-            margin-top: 40px;
-            font-size: 30px;
-            color: #00eaff;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-    </style>
+    /* ---- LAUNCH BUTTON ---- */
+    #launchBtn {
+        margin-top: 200px;
+        padding: 18px 50px;
+        font-size: 26px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #00eaff, #0077ff);
+        color: black;
+        transition: 0.3s;
+        box-shadow: 0 0 20px #00eaffaa;
+    }
 
-    <script>
-        function launchSite() {
-            document.getElementById("launchBtn").style.display = "none";
-            document.getElementById("celebration").style.display = "block";
+    #launchBtn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 25px #00eaff;
+    }
 
-            setTimeout(() => {
-                document.getElementById("sitename").style.display = "block";
-            }, 1500);
-        }
+    /* ---- CELEBRATION TEXT ---- */
+    #celebration {
+        display: none;
+        font-size: 55px;
+        margin-top: 80px;
+        animation: pop 1.2s ease-in-out;
+        font-weight: 700;
+        text-shadow: 0 0 20px #ffffffaa;
+    }
 
-        function openWebsite() {
-            window.location.href = "https://rakeshmalligevalu.in";
-        }
-    </script>
+    @keyframes pop {
+        0% { transform: scale(0.3); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
 
+    /* ---- SITE NAME LINK ---- */
+    #sitename {
+        display: none;
+        margin-top: 40px;
+        font-size: 32px;
+        color: #00eaff;
+        cursor: pointer;
+        text-decoration: underline;
+        animation: fadeIn 2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* ---- FIREWORKS CANVAS ---- */
+    canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+</style>
 </head>
 
 <body>
-    <button id="launchBtn" onclick="launchSite()">Launch Website</button>
 
-    <div id="celebration">🎉 CONGRATULATIONS! 🎉</div>
+<div class="bg-animation"></div>
 
-    <div id="sitename" onclick="openWebsite()">➡ Visit rakeshmalligevalu.in</div>
+<button id="launchBtn" onclick="launchSite()">🚀 Launch Website</button>
+
+<div id="celebration">🎉 Congratulations! 🎉</div>
+
+<div id="sitename" onclick="openWebsite()">➡ Visit rakeshmalligevalu.in</div>
+
+<canvas id="fireworksCanvas"></canvas>
+
+<script>
+    function launchSite() {
+        document.getElementById("launchBtn").style.display = "none";
+        document.getElementById("celebration").style.display = "block";
+
+        setTimeout(() => {
+            document.getElementById("sitename").style.display = "block";
+        }, 1500);
+
+        startFireworks();
+    }
+
+    function openWebsite() {
+        window.location.href = "https://rakeshmalligevalu.in";
+    }
+
+    /* ---- FIREWORKS SCRIPT ---- */
+    const canvas = document.getElementById("fireworksCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+
+    function random(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function createFirework() {
+        const x = random(100, canvas.width - 100);
+        const y = random(50, canvas.height / 2);
+
+        for (let i = 0; i < 80; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                radius: random(2, 4),
+                color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+                speedX: random(-5, 5),
+                speedY: random(-5, 5),
+                alpha: 1
+            });
+        }
+    }
+
+    function animateFireworks() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((p, index) => {
+            p.x += p.speedX;
+            p.y += p.speedY;
+            p.alpha -= 0.02;
+
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (p.alpha <= 0) particles.splice(index, 1);
+        });
+
+        requestAnimationFrame(animateFireworks);
+    }
+
+    function startFireworks() {
+        setInterval(createFirework, 700);
+        animateFireworks();
+    }
+</script>
+
 </body>
 </html>
