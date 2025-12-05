@@ -6,103 +6,92 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-    /* ---- GLOBAL STYLING ---- */
-    body {
-        margin: 0;
-        padding: 0;
-        background: radial-gradient(circle at top, #00111a, #000000);
-        font-family: "Poppins", sans-serif;
-        overflow: hidden;
-        color: white;
-        text-align: center;
-    }
+/* ---------- GLOBAL ---------- */
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    font-family: "Poppins", sans-serif;
+    overflow: hidden;
+    text-align: center;
+    color: white;
+}
 
-    /* ---- BACKGROUND ANIMATION ---- */
-    .bg-animation {
-        position: fixed;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(135deg, #001f33, #000000, #003344, #000000);
-        background-size: 400% 400%;
-        animation: flow 12s infinite;
-        z-index: -2;
-        top: -50%;
-        left: -50%;
-    }
+/* ---------- DYNAMIC BACKGROUND LAYERS ---------- */
 
-    @keyframes flow {
-        0% { transform: rotate(0deg); opacity: 0.9; }
-        50% { transform: rotate(180deg); opacity: 1; }
-        100% { transform: rotate(360deg); opacity: 0.9; }
-    }
+/* GRADIENT WAVE BACKGROUND */
+.gradient-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        135deg,
+        #001926,
+        #00334d,
+        #000d1a,
+        #002233,
+        #00101a
+    );
+    background-size: 400% 400%;
+    animation: gradientFlow 12s infinite ease-in-out;
+    z-index: -3;
+}
 
-    /* ---- LAUNCH BUTTON ---- */
-    #launchBtn {
-        margin-top: 200px;
-        padding: 18px 50px;
-        font-size: 26px;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #00eaff, #0077ff);
-        color: black;
-        transition: 0.3s;
-        box-shadow: 0 0 20px #00eaffaa;
-    }
+/* Smooth gradient animation */
+@keyframes gradientFlow {
+    0% { background-position: 0% 0%; transform: scale(1.1); }
+    50% { background-position: 100% 50%; transform: scale(1.2); }
+    100% { background-position: 0% 0%; transform: scale(1.1); }
+}
 
-    #launchBtn:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 25px #00eaff;
-    }
+/* FLOATING PARTICLE DOTS */
+.particles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -2;
+}
 
-    /* ---- CELEBRATION TEXT ---- */
-    #celebration {
-        display: none;
-        font-size: 55px;
-        margin-top: 80px;
-        animation: pop 1.2s ease-in-out;
-        font-weight: 700;
-        text-shadow: 0 0 20px #ffffffaa;
-    }
+.particles span {
+    position: absolute;
+    display: block;
+    width: 6px;
+    height: 6px;
+    background: #00eaff;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: floatUp 10s infinite linear;
+}
 
-    @keyframes pop {
-        0% { transform: scale(0.3); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
-    }
+@keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0.5); opacity: 0.2; }
+    50% { opacity: 0.9; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
 
-    /* ---- SITE NAME LINK ---- */
-    #sitename {
-        display: none;
-        margin-top: 40px;
-        font-size: 32px;
-        color: #00eaff;
-        cursor: pointer;
-        text-decoration: underline;
-        animation: fadeIn 2s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    /* ---- FIREWORKS CANVAS ---- */
-    canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: -1;
-    }
+/* ADD 25 RANDOM PARTICLES */
 </style>
 </head>
 
 <body>
 
-<div class="bg-animation"></div>
+<div class="gradient-bg"></div>
+
+<div class="particles">
+    <!-- Auto-generated 25 floating particles -->
+    <script>
+        for (let i = 0; i < 25; i++) {
+            const dot = document.createElement("span");
+            dot.style.left = Math.random() * 100 + "vw";
+            dot.style.animationDuration = 8 + Math.random() * 10 + "s";
+            dot.style.animationDelay = Math.random() * 5 + "s";
+            document.body.querySelector(".particles").appendChild(dot);
+        }
+    </script>
+</div>
 
 <button id="launchBtn" onclick="launchSite()">🚀 Launch Website</button>
 
@@ -112,76 +101,127 @@
 
 <canvas id="fireworksCanvas"></canvas>
 
+<style>
+/* ---------- BUTTON + TEXT ---------- */
+#launchBtn {
+    margin-top: 200px;
+    padding: 18px 50px;
+    font-size: 26px;
+    border-radius: 12px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #00eaff, #0077ff);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 25px #00eaffaa;
+    transition: 0.3s;
+}
+#launchBtn:hover {
+    transform: scale(1.12);
+}
+
+#celebration {
+    display: none;
+    font-size: 55px;
+    margin-top: 80px;
+    animation: pop 1.2s ease-in-out;
+    font-weight: 700;
+}
+@keyframes pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#sitename {
+    display: none;
+    margin-top: 40px;
+    font-size: 32px;
+    color: #00eaff;
+    cursor: pointer;
+    text-decoration: underline;
+    animation: fadeIn 2s ease-in-out;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- FIREWORKS CANVAS ---------- */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+</style>
+
 <script>
-    function launchSite() {
-        document.getElementById("launchBtn").style.display = "none";
-        document.getElementById("celebration").style.display = "block";
+function launchSite() {
+    document.getElementById("launchBtn").style.display = "none";
+    document.getElementById("celebration").style.display = "block";
+    setTimeout(() => {
+        document.getElementById("sitename").style.display = "block";
+    }, 1500);
+    startFireworks();
+}
 
-        setTimeout(() => {
-            document.getElementById("sitename").style.display = "block";
-        }, 1500);
+function openWebsite() {
+    window.location.href = "https://rakeshmalligevalu.in";
+}
 
-        startFireworks();
-    }
+/* ---------- FIREWORKS SCRIPT ---------- */
+const canvas = document.getElementById("fireworksCanvas");
+const ctx = canvas.getContext("2d");
 
-    function openWebsite() {
-        window.location.href = "https://rakeshmalligevalu.in";
-    }
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-    /* ---- FIREWORKS SCRIPT ---- */
-    const canvas = document.getElementById("fireworksCanvas");
-    const ctx = canvas.getContext("2d");
+let particles = [];
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function random(min, max) {
+    return Math.random() * (max - min) + min;
+}
 
-    let particles = [];
+function createFirework() {
+    const x = random(100, canvas.width - 100);
+    const y = random(50, canvas.height / 2);
 
-    function random(min, max) {
-        return Math.random() * (max - min) + min;
-    }
-
-    function createFirework() {
-        const x = random(100, canvas.width - 100);
-        const y = random(50, canvas.height / 2);
-
-        for (let i = 0; i < 80; i++) {
-            particles.push({
-                x: x,
-                y: y,
-                radius: random(2, 4),
-                color: `hsl(${Math.random() * 360}, 100%, 60%)`,
-                speedX: random(-5, 5),
-                speedY: random(-5, 5),
-                alpha: 1
-            });
-        }
-    }
-
-    function animateFireworks() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        particles.forEach((p, index) => {
-            p.x += p.speedX;
-            p.y += p.speedY;
-            p.alpha -= 0.02;
-
-            ctx.globalAlpha = p.alpha;
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fill();
-
-            if (p.alpha <= 0) particles.splice(index, 1);
+    for (let i = 0; i < 80; i++) {
+        particles.push({
+            x: x,
+            y: y,
+            radius: random(2, 4),
+            color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+            speedX: random(-5, 5),
+            speedY: random(-5, 5),
+            alpha: 1
         });
-
-        requestAnimationFrame(animateFireworks);
     }
+}
 
-    function startFireworks() {
-        setInterval(createFirework, 700);
-        animateFireworks();
-    }
+function animateFireworks() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach((p, index) => {
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.alpha -= 0.02;
+
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (p.alpha <= 0) particles.splice(index, 1);
+    });
+
+    requestAnimationFrame(animateFireworks);
+}
+
+function startFireworks() {
+    setInterval(createFirework, 700);
+    animateFireworks();
+}
 </script>
 
 </body>
