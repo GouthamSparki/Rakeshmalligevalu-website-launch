@@ -1,445 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Website Launch - Rakesh Malligevalu</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Website Launch – Rakesh Malligevalu</title>
 
-<!-- Three.js for WebGL background -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
-<!-- Simplex noise for aurora shader (small lib) -->
-<script src="https://cdn.jsdelivr.net/npm/simplex-noise@3.0.0/simplex-noise.min.js"></script>
-<!-- confetti -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-  /* Reset + layout */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html,body{height:100%;}
-  body {
-    font-family: Inter, Poppins, Arial, sans-serif;
-    background: black;
-    color: #fff;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Poppins', sans-serif;
+        background: black;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-  /* Fullscreen WebGL container */
-  #bg {
-    position: fixed;
-    inset: 0;
-    z-index: -10;
-    touch-action: none;
-  }
+    /* Aurora Borealis + Stars Canvas */
+    canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+    }
 
-  /* Soft overlay for readability */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0,6,18,0.25), rgba(0,0,0,0.35));
-    z-index: -5;
-    pointer-events: none;
-  }
+    /* Launch Card */
+    .card {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(15px);
+        padding: 32px;
+        border-radius: 22px;
+        text-align: center;
+        color: white;
+        width: 90%;
+        max-width: 480px;
+        box-shadow: 0 0 35px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 1.5s ease;
+    }
 
-  /* Particles layer for depth */
-  #particles {
-    position: fixed; inset: 0; z-index: -6; pointer-events:none;
-  }
+    h1 {
+        font-size: 26px;
+        margin: 0 0 12px;
+    }
 
-  /* Center card */
-  .card {
-    width: min(980px, 94%);
-    max-width: 980px;
-    padding: 36px;
-    border-radius: 16px;
-    text-align: center;
-    backdrop-filter: blur(8px) saturate(120%);
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-  }
+    p {
+        font-size: 16px;
+        opacity: 0.8;
+        margin-bottom: 20px;
+    }
 
-  h1 {
-    font-size: clamp(20px, 3.6vw, 36px);
-    margin-bottom: 14px;
-    letter-spacing: -0.6px;
-  }
-  p { color: rgba(255,255,255,0.78); margin-bottom: 20px; }
+    /* Launch Button */
+    button {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        font-size: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: white;
+        transition: 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
 
-  #launchBtn {
-    background: linear-gradient(135deg,#40e0ff,#1e3fff);
-    color:#001;
-    border: none;
-    padding: 14px 34px;
-    font-size: 18px;
-    font-weight: 700;
-    border-radius: 12px;
-    cursor: pointer;
-    box-shadow: 0 8px 28px rgba(30,60,255,0.18), 0 2px 8px rgba(0,0,0,0.5);
-    transition: transform .18s ease, box-shadow .18s ease;
-  }
-  #launchBtn:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 18px 40px rgba(30,60,255,0.22); }
+    button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(0, 162, 255, 0.5);
+    }
 
-  #celebration { display:none; margin-top:18px; font-size: clamp(18px,3vw,34px); font-weight:800; text-shadow: 0 6px 24px rgba(0,200,255,0.12); }
-  #sitename { display:none; margin-top:18px; font-size:20px; color:#9ef; cursor:pointer; text-decoration:underline; }
-
-  /* fireworks canvas sits above bg but behind UI */
-  #fireworksCanvas {
-    position: fixed; inset: 0; z-index: -7; pointer-events: none;
-  }
-
-  /* Responsive spacing for smaller screens */
-  @media (max-width:520px){
-    .card{padding:24px;}
-    #launchBtn{width:100%;}
-  }
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(20px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
 </style>
 </head>
 <body>
 
-<!-- WebGL background container -->
-<div id="bg"></div>
-<div class="overlay"></div>
+<!-- Background Canvas -->
+<canvas id="bg"></canvas>
 
-<!-- faint floating particles (DOM-based) -->
-<canvas id="particles"></canvas>
+<div class="card">
+    <h1>Rakesh Malligevalu — Website Launch</h1>
+    <p>Click the launch button to publish the website.</p>
 
-<!-- Fireworks canvas -->
-<canvas id="fireworksCanvas"></canvas>
-
-<!-- UI -->
-<div class="card" role="main" aria-labelledby="title">
-  <h1 id="title">Rakesh Malligevalu — Website Launch</h1>
-  <p>Click the launch button to Publish the website.</p>
-
-  <button id="launchBtn" aria-label="Launch Website">🚀 Launch The Website</button>
-
-  <div id="celebration">🎉 CONGRATULATIONS! Your Website Is Live Now🎉</div>
-  <div id="sitename" onclick="openWebsite()">➡ Visit rakeshmalligevalu.in</div>
-  <p style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:10px;">Hosted with GitHub Pages · Built for a premium launch</p>
+    <button onclick="launchWebsite()">
+        🚀 Launch The Website
+    </button>
 </div>
 
+<!-- Fireworks Animation Library -->
+<script src="https://cdn.jsdelivr.net/npm/fireworks-js@2/dist/fireworks.js"></script>
+
 <script>
-/* ============================
-   1) Setup Three.js WebGL Scene
-   ============================ */
+/* Aurora + Stars WebGL Background */
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-let scene, camera, renderer, auroraMesh, clock;
-const container = document.getElementById('bg');
+function aurora() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-function initThree() {
-  scene = new THREE.Scene();
-  clock = new THREE.Clock();
+    let gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, "rgba(0, 150, 255, 0.25)");
+    gradient.addColorStop(0.5, "rgba(120, 0, 200, 0.25)");
+    gradient.addColorStop(1, "rgba(0, 255, 150, 0.25)");
 
-  const w = window.innerWidth, h = window.innerHeight;
-  camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 1000);
-  camera.position.set(0, 0, 60);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(w, h);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  container.appendChild(renderer.domElement);
+    requestAnimationFrame(aurora);
+}
+aurora();
 
-  // subtle ambient light
-  const amb = new THREE.AmbientLight(0x88ccff, 0.45);
-  scene.add(amb);
-
-  // add fog for depth
-  scene.fog = new THREE.FogExp2(0x000010, 0.005);
-
-  // Aurora layers: multiple translucent ribbons using plane geometry + shader
-  const layers = 3;
-  for (let i=0;i<layers;i++){
-    const geom = new THREE.PlaneGeometry(140, 30, 120, 8);
-    const mat = new THREE.ShaderMaterial({
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      uniforms:{
-        uTime: { value: 0 },
-        uSpeed: { value: 0.12 + i*0.06 },
-        uOpacity: { value: 0.18 + i*0.12 },
-        uColorA: { value: new THREE.Color().setHSL(0.53 - i*0.02, 0.9, 0.5) },
-        uColorB: { value: new THREE.Color().setHSL(0.65 + i*0.04, 0.9, 0.45) },
-        uNoiseScale: { value: 0.9 + i*0.15 },
-        uOffset: { value: i * 12 }
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        varying float vNoise;
-        uniform float uTime;
-        uniform float uNoiseScale;
-        uniform float uOffset;
-        // 2D Simplex noise function (classic)
-        vec3 mod289(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
-        vec2 mod289(vec2 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
-        vec3 permute(vec3 x){ return mod289(((x*34.0)+1.0)*x); }
-        float snoise(vec2 v){
-          const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                               -0.577350269189626, 0.024390243902439);
-          vec2 i = floor(v + dot(v, C.yy) );
-          vec2 x0 = v - i + dot(i, C.xx);
-          vec2 i1 = (x0.x > x0.y) ? vec2(1.0,0.0) : vec2(0.0,1.0);
-          vec4 x12 = x0.xyxy + C.xxzz;
-          x12.xy -= i1;
-          i = mod289(i);
-          vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-                          + i.x + vec3(0.0, i1.x, 1.0 ));
-          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-          m = m*m; m = m*m;
-          vec3 x = 2.0 * fract(p * C.www) - 1.0;
-          vec3 h = abs(x) - 0.5;
-          vec3 ox = floor(x + 0.5);
-          vec3 a0 = x - ox;
-          m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-          vec3 g;
-          g.x  = a0.x  * x0.x + h.x  * x0.y;
-          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-          return 130.0 * dot(m, g);
-        }
-        void main(){
-          vUv = uv;
-          float time = uTime * uSpeed + uOffset;
-          // create a wavy displacement along Y using noise
-          float noise = snoise(vec2(uv.x * uNoiseScale * 6.0 + time*0.6, uv.y*2.0));
-          vNoise = noise;
-          vec3 pos = position;
-          pos.z += noise * 8.0 * (1.0 - uv.y); // depth variation
-          pos.y += noise * 6.0;
-          pos.x += sin(uv.x*8.0 + time)*1.5;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-        }
-      `,
-      fragmentShader: `
-        varying vec2 vUv;
-        varying float vNoise;
-        uniform vec3 uColorA;
-        uniform vec3 uColorB;
-        uniform float uOpacity;
-        void main(){
-          // gradient across the ribbon
-          float g = smoothstep(0.0, 1.0, vUv.x);
-          vec3 color = mix(uColorA, uColorB, g + vNoise*0.2);
-          float alpha = smoothstep(0.0, 0.1, vUv.y) * smoothstep(1.0, 0.6, vUv.y);
-          alpha *= uOpacity * (1.0 - abs(vNoise)*0.8);
-          gl_FragColor = vec4(color, alpha);
-        }
-      `
+/* Fireworks + Redirect */
+function launchWebsite() {
+    const fireworks = new Fireworks(document.body, {
+        opacity: 0.8,
+        acceleration: 1.02,
+        friction: 0.98,
+        particles: 300,
+        traceLength: 4,
+        traceSpeed: 5,
+        explosion: 7,
     });
 
-    const mesh = new THREE.Mesh(geom, mat);
-    mesh.position.set(0, -6 + i*6, -10 - i*6);
-    mesh.rotation.x = -0.12;
-    mesh.rotation.y = (Math.PI/180) * (i*8 - 8);
-    scene.add(mesh);
+    fireworks.start();
 
-    // keep reference to update uniform time later
-    if (!auroraMesh) auroraMesh = [];
-    auroraMesh.push(mat);
-  }
-
-  // subtle distant stars using Points
-  const starsGeom = new THREE.BufferGeometry();
-  const starCount = 500;
-  const starPos = new Float32Array(starCount * 3);
-  for (let i=0;i<starCount;i++){
-    starPos[i*3] = THREE.MathUtils.randFloatSpread(400);
-    starPos[i*3+1] = THREE.MathUtils.randFloat( -50, 200 );
-    starPos[i*3+2] = THREE.MathUtils.randFloatSpread(400);
-  }
-  starsGeom.setAttribute('position', new THREE.BufferAttribute(starPos,3));
-  const starsMat = new THREE.PointsMaterial({ color: 0xbfefff, size: 0.8, transparent:true, opacity:0.85 });
-  const stars = new THREE.Points(starsGeom, starsMat);
-  scene.add(stars);
-
-  onWindowResize();
-  window.addEventListener('resize', onWindowResize);
-  animate();
-}
-
-function onWindowResize(){
-  const w = window.innerWidth, h = window.innerHeight;
-  camera.aspect = w/h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w,h);
-  // resize fireworks + particles canvases too
-  resizeCanvas('fireworksCanvas');
-  resizeCanvas('particles');
-}
-
-function animate(){
-  requestAnimationFrame(animate);
-  const t = clock.getElapsedTime();
-  auroraMesh.forEach(m => m.uniforms.uTime.value = t);
-  // slowly drift camera for parallax
-  camera.position.x = Math.sin(t*0.05) * 4;
-  camera.position.y = Math.sin(t*0.02) * 2;
-  camera.lookAt(0, 0, 0);
-  renderer.render(scene, camera);
-}
-
-/* ============================
-   2) Particles DOM Canvas (floating dust)
-   ============================ */
-const pCanvas = document.getElementById('particles');
-const pCtx = pCanvas.getContext('2d');
-
-function resizeCanvas(id){
-  const c = document.getElementById(id);
-  if (!c) return;
-  c.width = window.innerWidth;
-  c.height = window.innerHeight;
-}
-resizeCanvas('particles');
-resizeCanvas('fireworksCanvas');
-
-let particlesDots = [];
-for (let i=0;i<40;i++){
-  particlesDots.push({
-    x: Math.random()*window.innerWidth,
-    y: Math.random()*window.innerHeight,
-    r: 1 + Math.random()*3,
-    a: 0.08 + Math.random()*0.6,
-    vx: (Math.random()-0.5)*0.2,
-    vy: -0.1 - Math.random()*0.5
-  });
-}
-function animateDots(){
-  const c = pCtx;
-  c.clearRect(0,0,pCanvas.width,pCanvas.height);
-  for (let p of particlesDots){
-    p.x += p.vx;
-    p.y += p.vy;
-    if (p.y < -10) { p.y = pCanvas.height + 10; p.x = Math.random()*pCanvas.width; }
-    if (p.x < -20) p.x = pCanvas.width + 20;
-    if (p.x > pCanvas.width + 20) p.x = -20;
-    c.globalAlpha = p.a;
-    const g = c.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*6);
-    g.addColorStop(0, 'rgba(144,238,255,0.95)');
-    g.addColorStop(0.4, 'rgba(80,170,255,0.35)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    c.fillStyle = g;
-    c.beginPath(); c.arc(p.x,p.y,p.r,0,Math.PI*2); c.fill();
-  }
-  requestAnimationFrame(animateDots);
-}
-animateDots();
-
-/* ============================
-   3) Fireworks implementation (canvas)
-   ============================ */
-const fireCanvas = document.getElementById('fireworksCanvas');
-const fCtx = fireCanvas.getContext('2d');
-resizeCanvas('fireworksCanvas');
-
-let fParticles = [];
-
-// spawn firework explosion at (x,y)
-function spawnFire(x,y){
-  const count = 80 + Math.floor(Math.random()*40);
-  const hue = Math.floor(Math.random()*360);
-  for (let i=0;i<count;i++){
-    const angle = Math.random()*Math.PI*2;
-    const speed = Math.random()*6 + 1;
-    fParticles.push({
-      x: x, y: y,
-      vx: Math.cos(angle)*speed,
-      vy: Math.sin(angle)*speed,
-      life: 60 + Math.random()*40,
-      age: 0,
-      r: 1 + Math.random()*3,
-      hue: hue + (Math.random()*40-20)
-    });
-  }
-}
-function animateFireworksCanvas(){
-  fCtx.clearRect(0,0,fireCanvas.width,fireCanvas.height);
-  for (let i=fParticles.length-1;i>=0;i--){
-    const p = fParticles[i];
-    p.vy += 0.06; // gravity
-    p.x += p.vx;
-    p.y += p.vy;
-    p.age++;
-    const alpha = Math.max(1 - p.age/p.life, 0);
-    fCtx.globalAlpha = alpha;
-    fCtx.fillStyle = `hsl(${p.hue} 100% 60%)`;
-    fCtx.beginPath();
-    fCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    fCtx.fill();
-    if (p.age > p.life) fParticles.splice(i,1);
-  }
-  requestAnimationFrame(animateFireworksCanvas);
-}
-animateFireworksCanvas();
-
-/* helper to trigger fireworks bursts repeatedly for n seconds */
-function triggerFireworksFor(durationMs){
-  const end = Date.now() + durationMs;
-  const iv = setInterval(()=>{
-    if (Date.now() > end) { clearInterval(iv); return; }
-    const x = Math.random()*fireCanvas.width;
-    const y = 80 + Math.random()* (fireCanvas.height*0.5);
-    spawnFire(x,y);
-  }, 350);
-}
-
-/* ============================
-   4) Launch flow: confetti + fireworks + UI
-   ============================ */
-const launchBtn = document.getElementById('launchBtn');
-const celebration = document.getElementById('celebration');
-const sitename = document.getElementById('sitename');
-
-function openWebsite(){ window.location.href = "https://rakeshmalligevalu.in"; }
-
-launchBtn.addEventListener('click', ()=>{
-  // disable
-  launchBtn.disabled = true;
-  launchBtn.style.transform = 'scale(0.98)';
-  // confetti burst
-  confetti({
-    particleCount: 220,
-    spread: 160,
-    scalar: 1.1,
-    ticks: 250
-  });
-  // show celebration text
-  celebration.style.display = 'block';
-  // trigger WebGL aurora glow intensification: quick tweak of uniforms
-  if (auroraMesh && auroraMesh.length){
-    auroraMesh.forEach((m, idx) => {
-      m.uniforms.uOpacity.value = Math.min(0.9, m.uniforms.uOpacity.value * 2.2);
-    });
-  }
-  // fireworks for 4.5 seconds
-  triggerFireworksFor(4500);
-  // show site link after a pause
-  setTimeout(()=> sitename.style.display = 'block', 1600);
-});
-
-/* init everything */
-window.addEventListener('load', ()=>{
-  initThree();
-});
-
-/* pointer parallax: subtle movement of camera when mouse moves */
-document.addEventListener('mousemove', (e)=>{
-  if (!camera) return;
-  const nx = (e.clientX / window.innerWidth) * 2 - 1;
-  const ny = (e.clientY / window.innerHeight) * 2 - 1;
-  camera.position.x += (nx*6 - camera.position.x) * 0.04;
-  camera.position.y += (-ny*3 - camera.position.y) * 0.04;
-});
-
-/* mobile fallback: if WebGL not available, show simple animated gradient */
-if (!window.WebGLRenderingContext) {
-  document.getElementById('bg').innerHTML = '';
-  document.querySelector('.overlay').style.background = 'linear-gradient(180deg,#00111a,#000000)';
+    setTimeout(() => {
+        fireworks.stop();
+        window.location.href = "https://rakeshmalligevalu.in";
+    }, 4000);
 }
 </script>
 
 </body>
 </html>
-
-
